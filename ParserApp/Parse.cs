@@ -8,6 +8,6 @@ namespace ParserApp
 {
     public static class Parse
     {
-
+        //add parse class methods here
     }
 }

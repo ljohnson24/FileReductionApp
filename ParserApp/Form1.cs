@@ -16,5 +16,16 @@ namespace ParserApp
         {
             InitializeComponent();
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            string path = "C:\\Users\\CSSE\\Desktop\\samplefile.csv";
+            var results = DataLogger.ReadCSVFile(path);
+            var definedresults = DataLogger.getListOfTimeStamps(results);
+            foreach (var line in definedresults)
+            {
+                MessageBox.Show(""+line);
+            }
+        }
     }
 }

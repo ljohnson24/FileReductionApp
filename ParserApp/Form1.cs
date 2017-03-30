@@ -27,11 +27,11 @@ namespace ParserApp
             var results = DataLoggerParse.ReadCSVFile(path);
             var definedresults = DataLoggerParse.getListOfTimeStamps(results);
             var definedresults2 = DataLoggerParse.getListOfDataEntries(results);
-            if(definedresults.Length == definedresults2.Length)
+            if(definedresults.Length == definedresults.Length)
             {
                 MessageBox.Show("Shaun everything is ok, both arrays are equal as it should be");
             }
-            foreach (var line in definedresults2)
+            foreach (var line in definedresults)
             {
                 MessageBox.Show(line);
             }

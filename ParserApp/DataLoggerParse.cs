@@ -46,11 +46,11 @@ namespace ParserApp
         }
 
         //method takes a raw list of data lines, extracts timestamps and returns array
-        public static int[] getListOfTimeStamps(String[] rawlistoflines)
+        public static String[] getListOfTimeStamps(String[] rawlistoflines)
         {
 
             //array variable that will store extracted timestamps
-            int[] timestamplist = new int[rawlistoflines.Count()];
+            String[] timestamplist = new String[rawlistoflines.Count()];
 
             //iterate thru each line in list, store extracted timestamp string
             for (int i = 1; i < rawlistoflines.Count(); i++)
@@ -79,11 +79,11 @@ namespace ParserApp
             return dataentrylist;
         }
         //takes a string and returns timestamps string
-        public static int getSingleTimeStamp(String line)
+        public static String getSingleTimeStamp(String line)
         {
             if (line == null)
             {
-                return -1;
+                return null;
             }
             //locates timestamp position by pos of 1st comma + **/**/**** +space
             int startTag = line.IndexOf(",") + 1;//excludes 1st occurance of ','
@@ -91,7 +91,7 @@ namespace ParserApp
             //check if delimitation exits
             if (startTag < 0)
             {
-                return -1;
+                return null;
             }
             //string variable used to collect string indexes
             String target = "";
@@ -103,11 +103,7 @@ namespace ParserApp
             {
                 //variable will collect all indexes between start and last count
                 target = line.Substring(startTag + 11, count);//11 excludes date in timestamp
-                //check if target contains ':', -trim
-                if (target.Contains(":"))
-                {
-                    target = target.Replace(":", "");
-                }
+               
                 count++;
             }
 
@@ -117,7 +113,7 @@ namespace ParserApp
                 target = target.TrimEnd(',');
             }
 
-            return Convert.ToInt32(target);
+            return target;
         }
 
         //takes a string and returns dataentry string 

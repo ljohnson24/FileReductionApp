@@ -23,7 +23,7 @@ namespace ParserApp
             //string path = "C:\\Users\\CSSE\\Desktop\\shawn files\\dat00001.csv";
 
             //for work laptop
-            string path = "C:\\Users\\johnsonl\\Desktop\\shawn files\\dat00001.csv";
+            string path = "C:\\Users\\johnsonl\\Desktop\\shawn files\\dat00002.csv";
             var results = DataLoggerParse.ReadCSVFile(path);
             var definedresults = DataLoggerParse.getListOfTimeStamps(results);
             var definedresults2 = DataLoggerParse.getListOfDataEntries(results);
@@ -33,7 +33,7 @@ namespace ParserApp
             }
             foreach (var line in definedresults2)
             {
-                MessageBox.Show(""+line);
+                MessageBox.Show(line);
             }
         }
     }

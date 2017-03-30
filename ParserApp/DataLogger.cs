@@ -13,18 +13,27 @@ namespace ParserApp
         {
             //will store each file line as a string list just for an array count
             List<String> listofcsvlines = new List<String>();
-            String[] arrofcsvlines = new String[listofcsvlines.Count()];
-
+            String[] arrofcsvlines;
             try
             {
                 using (System.IO.StreamReader csvReader = new System.IO.StreamReader(csvFileNameWithPath))
                 {
                     string lineStr;
-                    int i = 1;
+
                     while ((lineStr = csvReader.ReadLine()) != null)
                     {
-                        arrofcsvlines[i] = lineStr;
-                        i++;
+                        listofcsvlines.Add(lineStr);
+                    }
+                }
+                using (System.IO.StreamReader csvReader = new System.IO.StreamReader(csvFileNameWithPath))
+                {
+                    string lineStr;
+                    arrofcsvlines = new String[listofcsvlines.Count];
+                    int i = 0;
+                    while ((lineStr = csvReader.ReadLine()) != null)
+                    {
+                        arrofcsvlines[i]= lineStr;
+                        ++i;
                     }
                 }
             }
@@ -56,6 +65,10 @@ namespace ParserApp
         //takes a string and returns timestamps string
         public static int getSingleTimeStamp(String line)
         {
+            if (line == null)
+            {
+                return -1;
+            }
             //locates timestamp position by pos of 1st comma + **/**/**** +space
             int startTag = line.IndexOf(",")+1;//excludes 1st occurance of ','
             //searches for comma, semi colons for parse

@@ -24,18 +24,9 @@ namespace ParserApp
                     {
                         listofcsvlines.Add(lineStr);
                     }
+                    arrofcsvlines = listofcsvlines.ToArray();
                 }
-                using (System.IO.StreamReader csvReader = new System.IO.StreamReader(csvFileNameWithPath))
-                {
-                    string lineStr;
-                    arrofcsvlines = new String[listofcsvlines.Count];
-                    int i = 0;
-                    while ((lineStr = csvReader.ReadLine()) != null)
-                    {
-                        arrofcsvlines[i] = lineStr;
-                        ++i;
-                    }
-                }
+                
             }
             catch (Exception objError)
             {
@@ -46,11 +37,11 @@ namespace ParserApp
         }
 
         //method takes a raw list of data lines, extracts timestamps and returns array
-        public static String[] getListOfTimeStamps(String[] rawlistoflines)
+        public static int[] getListOfTimeStamps(String[] rawlistoflines)
         {
 
             //array variable that will store extracted timestamps
-            String[] timestamplist = new String[rawlistoflines.Count()];
+            int[] timestamplist = new int[rawlistoflines.Count()];
 
             //iterate thru each line in list, store extracted timestamp string
             for (int i = 1; i < rawlistoflines.Count(); i++)
@@ -95,11 +86,11 @@ namespace ParserApp
             return dataentrylist;
         }
         //takes a string and returns timestamps string
-        public static String getSingleTimeStamp(String line)
+        public static int getSingleTimeStamp(String line)
         {
             if (line == null)
             {
-                return null;
+                return -1;
             }
             //locates timestamp position by pos of 1st comma + **/**/**** +space
             int startTag = line.IndexOf(",") + 1;//excludes 1st occurance of ','
@@ -107,7 +98,7 @@ namespace ParserApp
             //check if delimitation exits
             if (startTag < 0)
             {
-                return null;
+                return -1;
             }
             //string variable used to collect string indexes
             String target = "";
@@ -119,7 +110,11 @@ namespace ParserApp
             {
                 //variable will collect all indexes between start and last count
                 target = line.Substring(startTag + 11, count);//11 excludes date in timestamp
-               
+                //check if contains ':' - remove
+                if (target.Contains(":"))
+                {
+                    target=target.Replace(":","");
+                }
                 count++;
             }
 
@@ -129,7 +124,7 @@ namespace ParserApp
                 target = target.TrimEnd(',');
             }
 
-            return target;
+            return Convert.ToInt32(target);
         }
 
         //takes a string and returns dataentry string 
@@ -166,6 +161,55 @@ namespace ParserApp
             }
 
             return -1;
+        }
+        
+        //takes an array of time integer and return array of time elapse
+        public static int[] getListOfIntervals(int[] rawtimestamps)
+        {
+            int[] arrofintervals;
+            //list that will store time intervals for count number
+            List<int> listofintervals = new List<int>();
+            //starts the first element at 0
+            listofintervals.Add(0);
+           for (int i = 1; i < rawtimestamps.Length-1; i++)
+            {
+                listofintervals.Add(rawtimestamps[i] - rawtimestamps[i+1]);
+            }
+
+            arrofintervals = listofintervals.ToArray();
+
+            return arrofintervals;
+        }
+        //takes a path string [datalogger csv file],parses 3 arrays [time, raw data, absolute data]
+        public static String[] getDelimitedParse(String path)
+        {
+            //array for compiled array
+            var iracompiled = new List<String>();
+            
+            //arrays containing interval, raw data, and absolute data
+            var rawresults = DataLoggerParse.ReadCSVFile(path);
+            var intervals = DataLoggerParse.getListOfIntervals(DataLoggerParse.getListOfTimeStamps(rawresults));
+            var rawdataentries = DataLoggerParse.getListOfDataEntries(rawresults);
+            var absolutedataentries = DataLoggerParse.getListOfAbsoluteDataEntries(rawresults);
+
+            //variable for tracking time
+            int collector = intervals[0];
+            int i = 1;
+            //header  items for cvs file
+            iracompiled.Add("Interval, Raw Value, Absolute Value");
+            //collects data for the first 10 seconds
+            while (collector < 10000)
+            {
+                
+                //formats parse
+                iracompiled.Add((collector-intervals[i]).ToString() + "," + rawdataentries[i].ToString() + "," + absolutedataentries[i].ToString("0.##########"));
+                ++i;
+                collector = collector - intervals[i];
+            }
+            //need to implement data collection  for every 1000 ms(1s), skipping colletion in between
+            //need to implement hh:mm:ss:fff format during interval increment
+            var ira = iracompiled.ToArray();
+            return ira;
         }
     }
 

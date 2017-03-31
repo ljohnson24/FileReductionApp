@@ -26,15 +26,19 @@ namespace ParserApp
             //string path = "C:\\Users\\johnsonl\\Desktop\\shawn files\\dat00002.csv";
             var results = DataLoggerParse.ReadCSVFile(path);
             var definedresults = DataLoggerParse.getListOfTimeStamps(results);
+            var intervals = DataLoggerParse.getListOfIntervals(definedresults);
             var definedresults2 = DataLoggerParse.getListOfDataEntries(results);
             var definedresults3 = DataLoggerParse.getListOfAbsoluteDataEntries(results);
-            if (definedresults.Length == definedresults.Length&& definedresults.Length == definedresults3.Length)
+
+            var parse = DataLoggerParse.getDelimitedParse(path);
+            if (definedresults.Length == definedresults.Length && definedresults.Length == definedresults3.Length)
             {
                 MessageBox.Show("Shaun everything is ok, both arrays are equal as it should be");
             }
-            foreach (var line in definedresults3)
-            {
-                MessageBox.Show(line.ToString("0.##########"));
+            else { MessageBox.Show("Damn!!!Damn!!Damn!!"); }
+            foreach (var line in parse)
+            {// line.ToString("0.##########") for digit precision 
+                MessageBox.Show(""+line);
             }
         }
     }

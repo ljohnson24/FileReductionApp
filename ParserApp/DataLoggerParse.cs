@@ -78,6 +78,22 @@ namespace ParserApp
 
             return dataentrylist;
         }
+        //method takes a raw list of data lines, extracts data entries, convert to absolute value and returns array
+        public static decimal[] getListOfAbsoluteDataEntries(String[] rawlistoflines)
+        {
+
+            //array variable that will store extracted timestamps
+            decimal[] dataentrylist = new decimal[rawlistoflines.Count()];
+
+            //iterate thru each line in list, store extracted timestamp string
+            for (int i = 1; i < rawlistoflines.Count(); i++)
+            {
+                //extracts timestamp method here
+                dataentrylist[i] = decimal.Parse(getSingleDataEntry(rawlistoflines[i]),System.Globalization.NumberStyles.Float);
+            }
+
+            return dataentrylist;
+        }
         //takes a string and returns timestamps string
         public static String getSingleTimeStamp(String line)
         {

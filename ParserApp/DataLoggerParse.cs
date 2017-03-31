@@ -217,24 +217,24 @@ namespace ParserApp
                 //collects total intervals times in ms
                 collector = collector - intervals[i];
             }
-            
+            //below code is buggy cases unstable ordering
             //collect data  for every 1000 ms(1s), skipping data in between
-            for (int j = i; j < intervals.Length; j++)
-            {
-                //calculate hr, mins,sec, remaining ms using total ms
-                t = TimeSpan.FromMilliseconds(collector - intervals[j]);
-                //format string time
-                String tlapse = string.Format("{0:D2}h:{1:D2}m:{2:D2}s:{3:D3}ms",
-                        t.Hours,
-                        t.Minutes,
-                        t.Seconds,
-                        t.Milliseconds);
-                //formats parse
-                iracompiled.Add(tlapse + "," + rawdataentries[j].ToString() + "," + absolutedataentries[j].ToString("0.##########"));
-                ++j;
-                //collects total intervals times in ms
-                collector = collector - intervals[j];
-            }
+            //for (int j = i; j < intervals.Length-2; j++)
+            //{
+            //    //calculate hr, mins,sec, remaining ms using total ms
+            //    t = TimeSpan.FromMilliseconds(collector - intervals[j]);
+            //    //format string time
+            //    String tlapse = string.Format("{0:D2}h:{1:D2}m:{2:D2}s:{3:D3}ms",
+            //            t.Hours,
+            //            t.Minutes,
+            //            t.Seconds,
+            //            t.Milliseconds);
+            //    //formats parse
+            //    iracompiled.Add(tlapse + "," + rawdataentries[j].ToString() + "," + absolutedataentries[j].ToString("0.##########"));
+            //    ++j;
+            //    //collects total intervals times in ms
+            //    collector = collector - intervals[j];
+            //}
             
            
             var ira = iracompiled.ToArray();

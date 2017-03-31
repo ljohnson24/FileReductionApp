@@ -38,7 +38,7 @@ namespace ParserApp
             }
             else { richTextBox1.AppendText("Damn!!!Damn!!Damn!!\n"); }
 
-            foreach (var line in results)
+            foreach (var line in parse)
             {// line.ToString("0.##########") for digit precision 
                 richTextBox1.AppendText("" +line+"\n");
             }

@@ -187,30 +187,60 @@ namespace ParserApp
             var iracompiled = new List<String>();
             
             //arrays containing interval, raw data, and absolute data
-            var rawresults = DataLoggerParse.ReadCSVFile(path);
-            var intervals = DataLoggerParse.getListOfIntervals(DataLoggerParse.getListOfTimeStamps(rawresults));
-            var rawdataentries = DataLoggerParse.getListOfDataEntries(rawresults);
-            var absolutedataentries = DataLoggerParse.getListOfAbsoluteDataEntries(rawresults);
+            var rawresults = ReadCSVFile(path);
+            var intervals = getListOfIntervals(getListOfTimeStamps(rawresults));
+            var rawdataentries = getListOfDataEntries(rawresults);
+            var absolutedataentries = getListOfAbsoluteDataEntries(rawresults);
 
             //variable for tracking time
             int collector = intervals[0];
+            //indexer
             int i = 1;
+            //time object
+            TimeSpan t;
             //header  items for cvs file
             iracompiled.Add("Interval, Raw Value, Absolute Value");
             //collects data for the first 10 seconds
             while (collector < 10000)
             {
-                
+                //calculate hr, mins,sec, remaining ms using total ms
+                t = TimeSpan.FromMilliseconds(collector - intervals[i]);
+                //format string time
+                String tlapse= string.Format("{0:D2}h:{1:D2}m:{2:D2}s:{3:D3}ms",
+                        t.Hours,
+                        t.Minutes,
+                        t.Seconds,
+                        t.Milliseconds);
                 //formats parse
-                iracompiled.Add((collector-intervals[i]).ToString() + "," + rawdataentries[i].ToString() + "," + absolutedataentries[i].ToString("0.##########"));
+                iracompiled.Add(tlapse + "," + rawdataentries[i].ToString() + "," + absolutedataentries[i].ToString("0.##########"));
                 ++i;
+                //collects total intervals times in ms
                 collector = collector - intervals[i];
             }
-            //need to implement data collection  for every 1000 ms(1s), skipping colletion in between
-            //need to implement hh:mm:ss:fff format during interval increment
+            
+            //collect data  for every 1000 ms(1s), skipping data in between
+            for (int j = i; j < intervals.Length; j++)
+            {
+                //calculate hr, mins,sec, remaining ms using total ms
+                t = TimeSpan.FromMilliseconds(collector - intervals[j]);
+                //format string time
+                String tlapse = string.Format("{0:D2}h:{1:D2}m:{2:D2}s:{3:D3}ms",
+                        t.Hours,
+                        t.Minutes,
+                        t.Seconds,
+                        t.Milliseconds);
+                //formats parse
+                iracompiled.Add(tlapse + "," + rawdataentries[j].ToString() + "," + absolutedataentries[j].ToString("0.##########"));
+                ++j;
+                //collects total intervals times in ms
+                collector = collector - intervals[j];
+            }
+            
+           
             var ira = iracompiled.ToArray();
             return ira;
         }
+        
     }
 
 }

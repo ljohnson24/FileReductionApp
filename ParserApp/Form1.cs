@@ -20,10 +20,10 @@ namespace ParserApp
         private void button1_Click(object sender, EventArgs e)
         {
             //for my pc
-            string path = "C:\\Users\\CSSE\\Desktop\\shawn files\\dat00001.csv";
+            //string path = "C:\\Users\\CSSE\\Desktop\\shawn files\\dat00001.csv";
 
             //for work laptop
-            //string path = "C:\\Users\\johnsonl\\Desktop\\shawn files\\dat00002.csv";
+            string path = "C:\\Users\\johnsonl\\Desktop\\shawn files\\dat00002.csv";
             var results = DataLoggerParse.ReadCSVFile(path);
             var definedresults = DataLoggerParse.getListOfTimeStamps(results);
             var intervals = DataLoggerParse.getListOfIntervals(definedresults);
@@ -31,15 +31,22 @@ namespace ParserApp
             var definedresults3 = DataLoggerParse.getListOfAbsoluteDataEntries(results);
 
             var parse = DataLoggerParse.getDelimitedParse(path);
-            if (definedresults.Length == definedresults.Length && definedresults.Length == definedresults3.Length)
+            if (definedresults.Length == definedresults.Length && definedresults.Length == definedresults3.Length && definedresults.Length ==intervals.Length+1)
             {
-                MessageBox.Show("Shaun everything is ok, both arrays are equal as it should be");
+                richTextBox1.AppendText("Shaun everything is ok, both arrays are equal as it should be\n");
+                
             }
-            else { MessageBox.Show("Damn!!!Damn!!Damn!!"); }
-            foreach (var line in parse)
+            else { richTextBox1.AppendText("Damn!!!Damn!!Damn!!\n"); }
+
+            foreach (var line in results)
             {// line.ToString("0.##########") for digit precision 
-                MessageBox.Show(""+line);
+                richTextBox1.AppendText("" +line+"\n");
             }
+        }
+
+        private void richTextBox1_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

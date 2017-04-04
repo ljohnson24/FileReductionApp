@@ -73,16 +73,25 @@ namespace ParserApp
             return dataentrylist;
         }
         //method takes a raw list of data lines, extracts data entries, convert to absolute value and returns array
-        public static List<decimal> getListOfAbsoluteDataEntries(List<String> rawlistoflines)
+        public static List<string> getListOfAbsoluteDataEntries(List<String> rawlistoflines)
         {
             //array variable that will store extracted timestamps
-            List<decimal> dataentrylist = new List<decimal>();
+            List<string> dataentrylist = new List<string>();
 
             //iterate thru each line in list, store extracted timestamp string
             for (int i = 0; i < rawlistoflines.Count(); i++)
             {
-                //extracts timestamp method here
-                dataentrylist.Add(decimal.Parse(getSingleDataEntry(rawlistoflines[i]),System.Globalization.NumberStyles.Float));
+                string temp = getSingleDataEntry(rawlistoflines[i]);
+                if (temp[0] == '-')
+                {
+                    temp = temp.TrimStart('-');
+                    dataentrylist.Add(temp);
+                }
+                else
+                {
+                    //extracts timestamp method here
+                    dataentrylist.Add(temp);
+                }
             }
 
             return dataentrylist;
@@ -209,16 +218,17 @@ namespace ParserApp
             bar.Maximum = rawresults.Count + 1;
 
             //counter
-            int target = 11000;
+            int target_ctrl = 11000;
             //variable for tracking total time
             int collector = 0;
             //time object
             TimeSpan t;
             //format string time
             String tlapse;
-            
+            int startdelay_ctrl=10000;
+            int middelay_ctrl;
             //header  items for cvs file
-            iracompiled.Add("Interval, Raw Value");
+            iracompiled.Add("Interval, Time(ms), Raw Value, Absolute Value");
 
             //account for every raw results
             for (int i = 1; i < rawresults.Count; i++)
@@ -232,21 +242,23 @@ namespace ParserApp
                 {
                     // calculate hr, mins,sec, remaining ms using total ms
                     t = TimeSpan.FromMilliseconds(collector);
-
+                    
                     tlapse = string.Format("{0:D2}h:{1:D2}m:{2:D2}s:{3:D3}ms",
                     t.Hours,
                     t.Minutes,
                     t.Seconds,
                     t.Milliseconds);
 
+                    int mslapse = (t.Hours * 60 * 60 * 1000) + (t.Minutes * 60 * 1000) + (t.Seconds * 1000)+t.Milliseconds;
+
                     //formats parse
-                    iracompiled.Add(tlapse + "," + rawdataentries[i-1].ToString() + ",");
+                    iracompiled.Add(tlapse + ","+ mslapse +","+ rawdataentries[i-1].ToString() + "," + absolutedataentries[i - 1].ToString());
                     //update collector
                     collector += (intervals[i] * -1)%60;
                 }
                 if (collector > 10000)
                 {
-                    if (collector > target)
+                    if (collector > target_ctrl)
                     {
                         // calculate hr, mins,sec, remaining ms using total ms
                         t = TimeSpan.FromMilliseconds(collector);
@@ -256,10 +268,12 @@ namespace ParserApp
                         t.Seconds,
                         t.Milliseconds);
 
+                        int mslapse = (t.Hours * 60 * 60 * 1000) + (t.Minutes * 60 * 1000) + (t.Seconds * 1000) + t.Milliseconds;
+
                         //formats parse
-                        iracompiled.Add(tlapse + "," + rawdataentries[i - 1].ToString() + ",");//+ absolutedataentries[i - 1].ToString("0.##########");
+                        iracompiled.Add(tlapse + "," + mslapse + "," + rawdataentries[i - 1].ToString() + "," + absolutedataentries[i - 1].ToString());
                         //set target time 1sec increments
-                        target = collector + 1000;
+                        target_ctrl = collector + 1000;
                     }
                     //update collector
                     collector += (intervals[i] * -1)%60;

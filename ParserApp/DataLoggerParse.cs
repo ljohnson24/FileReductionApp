@@ -199,6 +199,7 @@ namespace ParserApp
             bar.Minimum = 0;
             bar.Value = 1;
             bar.Step = 1;
+            bar.Maximum = 4;
             //arrays containing interval, raw data, and absolute data
             //increments progress bar status
             bar.PerformStep();
@@ -215,18 +216,19 @@ namespace ParserApp
             //increments progress bar status
             bar.PerformStep();
 
-            bar.Maximum = rawresults.Count + 1;
+            bar.Maximum = rawresults.Count -4;
 
             //counter
-            int target_ctrl = 11000;
+            int onlydataeveryms = 1000;
+            int target = 1000;
             //variable for tracking total time
             int collector = 0;
             //time object
             TimeSpan t;
             //format string time
             String tlapse;
-            int startdelay_ctrl=10000;
-            int middelay_ctrl;
+            int alldatauntilms=10000;
+            
             //header  items for cvs file
             iracompiled.Add("Interval, Time(ms), Raw Value, Absolute Value");
 
@@ -258,7 +260,7 @@ namespace ParserApp
                 }
                 if (collector > 10000)
                 {
-                    if (collector > target_ctrl)
+                    if (collector > target)
                     {
                         // calculate hr, mins,sec, remaining ms using total ms
                         t = TimeSpan.FromMilliseconds(collector);
@@ -273,7 +275,7 @@ namespace ParserApp
                         //formats parse
                         iracompiled.Add(tlapse + "," + mslapse + "," + rawdataentries[i - 1].ToString() + "," + absolutedataentries[i - 1].ToString());
                         //set target time 1sec increments
-                        target_ctrl = collector + 1000;
+                        target = collector+1000; //need seperate variable for 1000
                     }
                     //update collector
                     collector += (intervals[i] * -1)%60;

@@ -8,7 +8,29 @@ namespace ParserApp
 {
     public static class DataLoggerParse
     {
-        
+        //method - validate datalogger csv file 
+        public static bool ValidateCSVFile(String csvFileNameWithPath)
+        {
+            try
+            {
+                using (System.IO.StreamReader csvReader = new System.IO.StreamReader(csvFileNameWithPath))
+                {
+                    string lineStr = csvReader.ReadLine();
+
+                    if (lineStr != null && lineStr.Contains("Sweep #"))
+                        {
+                        return true;
+                        }
+                }
+            }
+            catch (Exception objError)
+            {
+                throw objError;
+            }
+
+            return false;
+        }
+   
         // method - takes csv file with path and returns a list of csv lines
         public static List<String> ReadCSVFile(String csvFileNameWithPath)
         {

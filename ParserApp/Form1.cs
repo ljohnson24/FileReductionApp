@@ -9,17 +9,17 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-
 namespace ParserApp
 {
     public partial class Form1 : Form
     {
         string importFoldername;
         string importDirectory;
-        
+        List<String> parse;
+
         public Form1()
         {
-            InitializeComponent();   
+            InitializeComponent();
         }
 
         private void richTextBox1_TextChanged(object sender, EventArgs e)
@@ -55,7 +55,30 @@ namespace ParserApp
 
         private void loadImportBtn_Click(object sender, EventArgs e)
         {
-            
+            importFoldername = importTb.Text;
+            //check if file is not empty
+            if (importFoldername == "" || importFoldername==null || !File.Exists(importFoldername))
+            {
+                MessageBox.Show("Please select a datalogger output .csv file");
+            }
+            else
+            {
+                //check if selected file is a specific data logger output csv file
+                if (DataLoggerParse.ValidateCSVFile(importFoldername))
+                {
+                    parse = DataLoggerParse.getDelimitedParse(importFoldername, progressBar1);
+                    richTextBox1.Text = "Data Lines: " + parse.Count + "\n";
+                }
+                else
+                {
+                    MessageBox.Show("The file selected was not a data logger output .csv file.");
+                    importFoldername = "";
+                    importTb.Text = importFoldername;
+                    richTextBox1.Clear();
+
+                }
+                
+            }
         }
 
         private void progressBar1_Click(object sender, EventArgs e)
@@ -103,12 +126,9 @@ namespace ParserApp
             }
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
-        }
-
-       
+            this.Close();
         }
     }
-
+}

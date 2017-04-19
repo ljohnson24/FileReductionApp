@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-
+using System.IO;
 
 namespace ParserApp
 {
@@ -14,19 +14,22 @@ namespace ParserApp
         {
             //will store each file line as a string list 
             List<String> listofcsvlines = new List<String>();
-            
+
             try
             {
-                using (System.IO.StreamReader csvReader = new System.IO.StreamReader(csvFileNameWithPath))
+                using (var fileStream = File.OpenRead(csvFileNameWithPath))
                 {
-                    string lineStr;
-
-                    while ((lineStr = csvReader.ReadLine()) != null)
+                    using (TextReader csvReader = new StreamReader(csvFileNameWithPath))
                     {
-                        //excludes the header line
-                        if (!lineStr.Contains("#"))
+                        string lineStr;
+
+                        while ((lineStr = csvReader.ReadLine()) != null)
                         {
-                            listofcsvlines.Add(lineStr);
+                            //excludes the header line
+                            if (!lineStr.Contains("#"))
+                            {
+                                listofcsvlines.Add(lineStr);
+                            }
                         }
                     }
                 }
@@ -187,26 +190,26 @@ namespace ParserApp
             var iracompiled = new List<String>();
 
             //progress bar values
-            bar.Minimum = 0;
-            bar.Value = 1;
-            bar.Step = 1;
+           // bar.Minimum = 0;
+            //bar.Value = 1;
+            //bar.Step = 1;
             //arrays containing interval, raw data, and absolute data
             //increments progress bar status
-            bar.PerformStep();
+            //bar.PerformStep();
             var rawresults = ReadCSVFile(path);
             //increments progress bar status
-            bar.PerformStep();
+            //bar.PerformStep();
             var intervals = getListOfIntervals(getListOfTimeStamps(rawresults));
             //increments progress bar status
-            bar.PerformStep();
+            //bar.PerformStep();
             var rawdataentries = getListOfDataEntries(rawresults);
             //increments progress bar status
-            bar.PerformStep();
+            //bar.PerformStep();
             var absolutedataentries = getListOfAbsoluteDataEntries(rawresults);
             //increments progress bar status
-            bar.PerformStep();
+            //bar.PerformStep();
 
-            bar.Maximum = rawresults.Count + 1;
+            //bar.Maximum = rawresults.Count + 1;
 
             //counter
             int target = 11000;
@@ -226,7 +229,7 @@ namespace ParserApp
                 //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
                 System.Windows.Forms.Application.DoEvents();
                 //increments progress bar status
-                bar.PerformStep();
+                //bar.PerformStep();
                 //condition that adds all data entries for the first 10 secs or 10000 ms
                 if (collector < 10000)
                 {
@@ -266,7 +269,7 @@ namespace ParserApp
                 }
             }
             //reset status bar
-            bar.Value = 0;
+            //bar.Value = 0;
             return iracompiled;
         }
     }

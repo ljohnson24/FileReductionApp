@@ -2,25 +2,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-
+using System.IO;
 
 namespace ParserApp
 {
     public static class DataLoggerParse
     {
+        
         //method - validate datalogger csv file 
         public static bool ValidateCSVFile(String csvFileNameWithPath)
         {
             try
             {
-                using (System.IO.StreamReader csvReader = new System.IO.StreamReader(csvFileNameWithPath))
+                using (var fileStream = File.OpenRead(csvFileNameWithPath))
                 {
-                    string lineStr = csvReader.ReadLine();
+                    using (TextReader csvReader = new StreamReader(csvFileNameWithPath))
+                    {
+                        string lineStr = csvReader.ReadLine();
 
-                    if (lineStr != null && lineStr.Contains("Sweep #"))
+                        if (lineStr != null && lineStr.Contains("Sweep #"))
                         {
-                        return true;
+                            return true;
                         }
+                    }
                 }
             }
             catch (Exception objError)
@@ -32,23 +36,32 @@ namespace ParserApp
         }
    
         // method - takes csv file with path and returns a list of csv lines
-        public static List<String> ReadCSVFile(String csvFileNameWithPath)
+        public static Data ReadCSVFile(String csvFileNameWithPath, Data csvobj)
         {
-            //will store each file line as a string list 
-            List<String> listofcsvlines = new List<String>();
-            
             try
             {
-                using (System.IO.StreamReader csvReader = new System.IO.StreamReader(csvFileNameWithPath))
+                using (var fileStream = File.OpenRead(csvFileNameWithPath))
                 {
-                    string lineStr;
-
-                    while ((lineStr = csvReader.ReadLine()) != null)
+                    using (TextReader csvReader = new StreamReader(csvFileNameWithPath))
                     {
-                        //excludes the header line
-                        if (!lineStr.Contains("#"))
+                        string lineStr;
+                        int count =0;
+                        int max = 25000000;
+
+                        while ((lineStr = csvReader.ReadLine()) != null)
                         {
-                            listofcsvlines.Add(lineStr);
+                            //excludes the header line
+                            if (!lineStr.Contains("#"))
+                            {
+                                if (count == max)
+                                {
+                                    break;
+                                }
+                                    csvobj.Listofcsvlines.Add(lineStr);
+                                    ++count;
+                                    ++csvobj.Linenumber;
+                                
+                            }
                         }
                     }
                 }
@@ -58,7 +71,7 @@ namespace ParserApp
                 throw objError;
             }
 
-            return listofcsvlines;
+            return csvobj;
         }
 
         //method takes a raw list of data lines, extracts timestamps and returns array

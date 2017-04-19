@@ -34,10 +34,11 @@ namespace ParserApp
 
             return false;
         }
-   
-        // method - takes csv file with path and returns a list of csv lines
-        public static Data ReadCSVFile(String csvFileNameWithPath, Data csvobj)
+        //function for splitting files into smaller files
+        public static void SplitCSVFile(String csvFileNameWithPath)
         {
+            //container for storing lines of a csv
+            List<string> listofcsvlines = new List<string>();
             try
             {
                 using (var fileStream = File.OpenRead(csvFileNameWithPath))
@@ -45,21 +46,68 @@ namespace ParserApp
                     using (TextReader csvReader = new StreamReader(csvFileNameWithPath))
                     {
                         string lineStr;
-                        int count =0;
+                        int i = 0;
+                        int count = 0;
                         int max = 25000000;
+                        string subfile = csvFileNameWithPath;
+                        TextWriter textWriter;
+                        while ((lineStr = csvReader.ReadLine()) != null)
+                        {//check if read is below max 2.5 million lines
+                            if (count <= max)
+                            {//write to current subfile if under 2.5M lines
+                                using (textWriter = new StreamWriter(csvFileNameWithPath.TrimStart('.') + "_" + i + ".csv"))
+                                {
+                                    textWriter.WriteLine(lineStr);
+                                }
+
+                                ++count;
+                            }
+                            //check if reached max lines
+                            if (count > max)
+                            {
+                                break;
+                                ++i;//file suffix variable
+                                
+                                //open new file using new suffix
+                                TextWriter textWriter1 = new StreamWriter(csvFileNameWithPath.TrimStart('.') + "_" + i + ".csv");
+                                
+                                count = 0;//reset count variable
+                                //stores first line in new subfile 
+                                using (textWriter1)
+                                {
+                                    textWriter1.WriteLine(lineStr);
+                                }
+                            }  
+                        }
+                    }
+                }
+            }
+            catch (Exception objError)
+            {
+                throw objError;
+            }
+        }
+        // method - takes csv file with path and returns a list of csv lines
+        public static List<string> ReadCSVFile(String csvFileNameWithPath)
+        {
+            //container for storing lines of a csv
+            List<string> listofcsvlines = new List<string>();
+            
+            try
+            {
+                using (var fileStream = File.OpenRead(csvFileNameWithPath))
+                {
+                    using (TextReader csvReader = new StreamReader(csvFileNameWithPath))
+                    {
+                        string lineStr;
+                        
 
                         while ((lineStr = csvReader.ReadLine()) != null)
                         {
                             //excludes the header line
                             if (!lineStr.Contains("#"))
                             {
-                                if (count == max)
-                                {
-                                    break;
-                                }
-                                    csvobj.Listofcsvlines.Add(lineStr);
-                                    ++count;
-                                    ++csvobj.Linenumber;
+                                listofcsvlines.Add(lineStr);
                                 
                             }
                         }
@@ -71,7 +119,7 @@ namespace ParserApp
                 throw objError;
             }
 
-            return csvobj;
+            return listofcsvlines;
         }
 
         //method takes a raw list of data lines, extracts timestamps and returns array

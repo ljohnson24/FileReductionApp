@@ -65,7 +65,7 @@ namespace ParserApp
                             //check if reached max lines
                             if (count > max)
                             {
-                                break;
+                                
                                 ++i;//file suffix variable
                                 
                                 //open new file using new suffix

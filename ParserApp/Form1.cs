@@ -67,8 +67,8 @@ namespace ParserApp
                 if (DataLoggerParse.ValidateCSVFile(importFoldername))
                 {
                     //DataLoggerParse.SplitCSVFile(importFoldername);
-                    parse = DataLoggerParse.getDelimitedParse(importFoldername, progressBar1);
-                    richTextBox1.Text = "Data Lines: " + parse.Count + "\n";
+                    DataLoggerParse.getDelimitedParse(importFoldername, progressBar1);
+                    //richTextBox1.Text = "Data Lines: " + parse.Count + "\n";
                 }
                 else
                 {

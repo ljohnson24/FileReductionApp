@@ -60,6 +60,37 @@ namespace ParserApp
 
             return listofcsvlines;
         }
+        //split method
+        public static void Split(string inputfile, string outputfilesformat)
+        {
+            int i = 0;
+            System.IO.StreamWriter outfile = null;
+            string line;
+
+            try
+            {
+                using (var infile = new System.IO.StreamReader(inputfile))
+                {
+                    while (!infile.EndOfStream)
+                    {
+                        line = infile.ReadLine();
+                        
+                            outfile = new System.IO.StreamWriter(
+                                string.Format(outputfilesformat, i++),
+                                false,
+                                infile.CurrentEncoding);
+                        
+                        outfile.WriteLine(line);
+                    }
+
+                }
+            }
+            finally
+            {
+                if (outfile != null)
+                    outfile.Dispose();
+            }
+        }
 
         //method takes a raw list of data lines, extracts timestamps and returns array
         public static List<int> getListOfTimeStamps(List<String> rawlistoflines)

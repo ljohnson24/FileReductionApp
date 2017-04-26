@@ -339,7 +339,11 @@ namespace ParserApp
                     //formats parse
                     iracompiled.Add(tlapse + ","+ mslapse +","+ rawdataentries[i-1].ToString() + "," + absolutedataentries[i - 1].ToString());
                     //update collector
-                    collector += (intervals[i] * -1)%60;
+                    collector += (intervals[i] * -1);
+                    if (collector > 1000)
+                    {
+                        collector = collector % 60;
+                    }
                 }
                 if (collector > 10000)
                 {

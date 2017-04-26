@@ -66,9 +66,9 @@ namespace ParserApp
                 //check if selected file is a specific data logger output csv file
                 if (DataLoggerParse.ValidateCSVFile(importFoldername))
                 {
-                    DataLoggerParse.SplitCSVFile(importFoldername);
-                    //parse = DataLoggerParse.getDelimitedParse(importFoldername, progressBar1);
-                    //richTextBox1.Text = "Data Lines: " + parse.Count + "\n";
+                    //DataLoggerParse.SplitCSVFile(importFoldername);
+                    parse = DataLoggerParse.getDelimitedParse(importFoldername, progressBar1);
+                    richTextBox1.Text = "Data Lines: " + parse.Count + "\n";
                 }
                 else
                 {

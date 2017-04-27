@@ -53,7 +53,10 @@ namespace ParserApp
                 {
                     Directory.CreateDirectory(dir);
                     while (!fileStream.EndOfStream)
-                    {//check if read is below max lines
+                    {
+                        //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
+                        System.Windows.Forms.Application.DoEvents();
+                        //check if read is below max lines
                         lineStr = fileStream.ReadLine();
 
                         if (outputfile == null)
@@ -66,15 +69,15 @@ namespace ParserApp
 
                         if (count < max)
                         {//write to current subfile if under max lines
-                            if (count == 0)
-                            {
-                                if (!lineStr.Contains('#'))
-                                {
-                                    outputfile.WriteLine("Sweep #,Time,Chan 222 (ADC)");
-                                    ++count;
-                                }
+                            //if (count == 0)
+                            //{
+                            //    if (!lineStr.Contains('#'))
+                            //    {
+                            //        outputfile.WriteLine("Sweep #,Time,Chan 222 (ADC)");
+                            //        ++count;
+                            //    }
 
-                            }
+                            //}
                             outputfile.WriteLine(lineStr);
 
                             ++count;
@@ -321,11 +324,13 @@ namespace ParserApp
             bar.Value = 1;
             bar.Step = 1;
             bar.Maximum = 4;
-            //arrays containing interval, raw data, and absolute data
+            
             //increments progress bar status
             bar.PerformStep();
             foreach (string splitstringpath in listofcsvfiles)
-            {
+            {//Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
+                System.Windows.Forms.Application.DoEvents();
+                //arrays containing interval, raw data, and absolute data
                 var rawresults = ReadCSVFile(splitstringpath);
                 //increments progress bar status
                 bar.PerformStep();
@@ -363,7 +368,7 @@ namespace ParserApp
                     //increments progress bar status
                     bar.PerformStep();
                     //condition that adds all data entries for the first 10 secs or 10000 ms
-                    if (collector < 10000)
+                    if (collector < alldatauntilms)
                     {
                         // calculate hr, mins,sec, remaining ms using total ms
                         t = TimeSpan.FromMilliseconds(collector);
@@ -377,11 +382,15 @@ namespace ParserApp
                         int mslapse = (t.Hours * 60 * 60 * 1000) + (t.Minutes * 60 * 1000) + (t.Seconds * 1000) + t.Milliseconds;
 
                         //formats parse
-                        iracompiled.Add(tlapse + "," + mslapse + "," + rawdataentries[i - 1].ToString() + "," + absolutedataentries[i - 1].ToString());
-                        //update collector
-                        collector += (intervals[i] * -1) % 60;
+                        if (!absolutedataentries[i - 1].ToString().Contains("0.00000000E"))
+                        {
+                            iracompiled.Add(tlapse + "," + mslapse + "," + rawdataentries[i - 1].ToString() + "," + absolutedataentries[i - 1].ToString());
+                            //update collector
+                            collector += (intervals[i] * -1) % 60;
+                        }
+                        
                     }
-                    if (collector > 10000)
+                    if (collector > alldatauntilms)
                     {
                         if (collector > target)
                         {
@@ -396,19 +405,24 @@ namespace ParserApp
                             int mslapse = (t.Hours * 60 * 60 * 1000) + (t.Minutes * 60 * 1000) + (t.Seconds * 1000) + t.Milliseconds;
 
                             //formats parse
-                            iracompiled.Add(tlapse + "," + mslapse + "," + rawdataentries[i - 1].ToString() + "," + absolutedataentries[i - 1].ToString());
-                            //set target time 1sec increments
-                            target = collector + 1000; //need seperate variable for 1000
+                            if (!absolutedataentries[i - 1].ToString().Contains("0.00000000E"))
+                            {
+                                iracompiled.Add(tlapse + "," + mslapse + "," + rawdataentries[i - 1].ToString() + "," + absolutedataentries[i - 1].ToString());
+                                //update collector
+                                collector += (intervals[i] * -1) % 60;
+                                //set target time 1sec increments
+                                target = collector + 1000; //need seperate variable for 1000
+                            }
+                            
                         }
-                        //update collector
-                        collector += (intervals[i] * -1) % 60;
+                        
                     }
                 }
                 //reset status bar
                 bar.Value = 0;
                 var file = splitstringpath;
-                
-                file = file.Replace(".csv", "_extract.csv");
+
+                file = file.Replace(".csv", "_parse.csv");
                 using (var stream = File.CreateText(file))
                 {
                     foreach (string line in iracompiled)
@@ -416,6 +430,7 @@ namespace ParserApp
                         stream.WriteLine(line);
                     }
                 }
+                
             }
         }
 

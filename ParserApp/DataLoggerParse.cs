@@ -37,6 +37,8 @@ namespace ParserApp
         //function for splitting files into smaller files
         public static String SplitCSVFile(String csvFileNameWithPath)
         {
+            //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
+            System.Windows.Forms.Application.DoEvents();
             //container for storing lines of a csv
             StreamWriter outputfile = null;
             string lineStr;
@@ -53,16 +55,13 @@ namespace ParserApp
                 {
                     Directory.CreateDirectory(dir);
                     while (!fileStream.EndOfStream)
-                    {
-                        //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
-                        System.Windows.Forms.Application.DoEvents();
-                        //check if read is below max lines
+                    {//check if read is below max lines
                         lineStr = fileStream.ReadLine();
 
                         if (outputfile == null)
                         {
                             outputfile = new System.IO.StreamWriter(
-                                string.Format(dir + filename + "_{0}.csv", i++),
+                                string.Format(dir + filename + "_{0:D2}.csv", i++),
                                 false,
                                 fileStream.CurrentEncoding);
                         }
@@ -85,7 +84,6 @@ namespace ParserApp
 
                         if (count >= max)
                         {
-
                             count = 0;
                             outputfile.Close();
                             outputfile = null;
@@ -186,6 +184,11 @@ namespace ParserApp
                 if (temp[0] == '-')
                 {
                     temp = temp.TrimStart('-');
+                    dataentrylist.Add(temp);
+                }
+                else if (temp[0] == '+')
+                {
+                    temp = temp.TrimStart('+');
                     dataentrylist.Add(temp);
                 }
                 else
@@ -305,6 +308,7 @@ namespace ParserApp
             {
                 //stores each pathstring w/ .csv ext in container - from root
                 files = System.IO.Directory.GetFiles(folderpath, "*.csv").ToList<string>();
+                files.Sort();
                 return files;
             }
 
@@ -315,22 +319,34 @@ namespace ParserApp
         {
             string csvfolder = SplitCSVFile(path);
             var listofcsvfiles = getListofDirectory(csvfolder);
-
-            //array for compiled array
-            var iracompiled = new List<String>();
+            
+            //counter
+            int onlydataeveryms = 1000;
+            int target = 1000;
+            //variable for tracking total time
+            int collector = 0;
+            //time object
+            TimeSpan t;
+            //format string time
+            String tlapse;
+            int alldatauntilms = 10000;
+            int j = 1;
 
             //progress bar values
             bar.Minimum = 0;
             bar.Value = 1;
             bar.Step = 1;
             bar.Maximum = 4;
-            
+            //arrays containing interval, raw data, and absolute data
             //increments progress bar status
             bar.PerformStep();
+            int mslapse;
             foreach (string splitstringpath in listofcsvfiles)
-            {//Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
+            {
+                //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
                 System.Windows.Forms.Application.DoEvents();
-                //arrays containing interval, raw data, and absolute data
+                //array for compiled array
+                var iracompiled = new List<String>();
                 var rawresults = ReadCSVFile(splitstringpath);
                 //increments progress bar status
                 bar.PerformStep();
@@ -346,17 +362,7 @@ namespace ParserApp
 
                 bar.Maximum = rawresults.Count - 4;
 
-                //counter
-                int onlydataeveryms = 1000;
-                int target = 1000;
-                //variable for tracking total time
-                int collector = 0;
-                //time object
-                TimeSpan t;
-                //format string time
-                String tlapse;
-                int alldatauntilms = 10000;
-
+             
                 //header  items for cvs file
                 iracompiled.Add("Interval, Time(ms), Raw Value, Absolute Value");
 
@@ -368,69 +374,73 @@ namespace ParserApp
                     //increments progress bar status
                     bar.PerformStep();
                     //condition that adds all data entries for the first 10 secs or 10000 ms
-                    if (collector < alldatauntilms)
+                    if (collector < 10000)
                     {
                         // calculate hr, mins,sec, remaining ms using total ms
                         t = TimeSpan.FromMilliseconds(collector);
 
-                        tlapse = string.Format("{0:D2}h:{1:D2}m:{2:D2}s:{3:D3}ms",
+                        tlapse = string.Format("{0:D2}d:{1:D2}h:{2:D2}m:{3:D2}s:{4:D3}ms",
+                        t.Days,
                         t.Hours,
                         t.Minutes,
                         t.Seconds,
                         t.Milliseconds);
 
-                        int mslapse = (t.Hours * 60 * 60 * 1000) + (t.Minutes * 60 * 1000) + (t.Seconds * 1000) + t.Milliseconds;
-
-                        //formats parse
-                        if (!absolutedataentries[i - 1].ToString().Contains("0.00000000E"))
+                        mslapse = (t.Days * 24 * 60 * 60 * 1000) + (t.Hours * 60 * 60 * 1000) + (t.Minutes * 60 * 1000) + (t.Seconds * 1000) + t.Milliseconds;
+                        //excludes lines contain zero data
+                        if (!rawdataentries[i-1].ToString().Contains("0.00000000E"))
                         {
+                            //formats parse
                             iracompiled.Add(tlapse + "," + mslapse + "," + rawdataentries[i - 1].ToString() + "," + absolutedataentries[i - 1].ToString());
                             //update collector
                             collector += (intervals[i] * -1) % 60;
                         }
                         
                     }
-                    if (collector > alldatauntilms)
+                    if (collector > 10000)
                     {
                         if (collector > target)
                         {
                             // calculate hr, mins,sec, remaining ms using total ms
                             t = TimeSpan.FromMilliseconds(collector);
-                            tlapse = string.Format("{0:D2}h:{1:D2}m:{2:D2}s:{3:D3}ms",
+                            tlapse = string.Format("{0:D2}d:{1:D2}h:{2:D2}m:{3:D2}s:{4:D3}ms",
+                            t.Days,
                             t.Hours,
                             t.Minutes,
                             t.Seconds,
                             t.Milliseconds);
 
-                            int mslapse = (t.Hours * 60 * 60 * 1000) + (t.Minutes * 60 * 1000) + (t.Seconds * 1000) + t.Milliseconds;
-
-                            //formats parse
-                            if (!absolutedataentries[i - 1].ToString().Contains("0.00000000E"))
+                            mslapse = (t.Days * 24 * 60 * 60 * 1000)+(t.Hours * 60 * 60 * 1000) + (t.Minutes * 60 * 1000) + (t.Seconds * 1000) + t.Milliseconds;
+                            if (!rawdataentries[i - 1].ToString().Contains("0.00000000E"))
                             {
+                                //formats parse
                                 iracompiled.Add(tlapse + "," + mslapse + "," + rawdataentries[i - 1].ToString() + "," + absolutedataentries[i - 1].ToString());
-                                //update collector
-                                collector += (intervals[i] * -1) % 60;
-                                //set target time 1sec increments
-                                target = collector + 1000; //need seperate variable for 1000
+                                
                             }
-                            
+                            //set target time 1sec increments
+                            target = collector + 1000; //need seperate variable for 1000
                         }
-                        
+                        //update collector
+                        collector += (intervals[i] * -1)%60;
                     }
                 }
+
                 //reset status bar
                 bar.Value = 0;
-                var file = splitstringpath;
 
-                file = file.Replace(".csv", "_parse.csv");
+                var file = splitstringpath.Replace(".csv", "_Parse.csv");
                 using (var stream = File.CreateText(file))
                 {
                     foreach (string line in iracompiled)
                     {
+                        //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
+                        System.Windows.Forms.Application.DoEvents();
+
                         stream.WriteLine(line);
                     }
+                    
                 }
-                
+                ++j;
             }
         }
 

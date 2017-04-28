@@ -55,7 +55,10 @@ namespace ParserApp
                 {
                     Directory.CreateDirectory(dir);
                     while (!fileStream.EndOfStream)
-                    {//check if read is below max lines
+                    {
+                        //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
+                        System.Windows.Forms.Application.DoEvents();
+                        //check if read is below max lines
                         lineStr = fileStream.ReadLine();
 
                         if (outputfile == null)
@@ -67,16 +70,7 @@ namespace ParserApp
                         }
 
                         if (count < max)
-                        {//write to current subfile if under max lines
-                            //if (count == 0)
-                            //{
-                            //    if (!lineStr.Contains('#'))
-                            //    {
-                            //        outputfile.WriteLine("Sweep #,Time,Chan 222 (ADC)");
-                            //        ++count;
-                            //    }
-
-                            //}
+                        {
                             outputfile.WriteLine(lineStr);
 
                             ++count;

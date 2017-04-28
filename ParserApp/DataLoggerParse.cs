@@ -405,7 +405,7 @@ namespace ParserApp
                     //increments progress bar status
                     bar.PerformStep();
                     //condition that adds all data entries for the first 10 secs or 10000 ms
-                    if (collector < 10000)
+                    if (collector < 100000)
                     {
                         // calculate hr, mins,sec, remaining ms using total ms
                         t = TimeSpan.FromMilliseconds(collector);

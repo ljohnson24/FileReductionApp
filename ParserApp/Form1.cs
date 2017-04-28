@@ -66,8 +66,9 @@ namespace ParserApp
                 //check if selected file is a specific data logger output csv file
                 if (DataLoggerParse.ValidateCSVFile(importFoldername))
                 {
+                    richTextBox1.Text = "Please wait, Program is processing. For very large files, this could take a while. Do not open any files that are processing, this could interrupt the process.";
                     DataLoggerParse.getDelimitedParse(importFoldername, progressBar1);
-                    //richTextBox1.Text = "Data Lines: " + parse.Count + "\n";
+                    richTextBox1.Text = "Program is ready for use.";
                 }
                 else
                 {

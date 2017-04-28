@@ -342,11 +342,21 @@ namespace ParserApp
         //takes a path string [datalogger csv file],parses 3 arrays [time, raw data, absolute data]
         public static void getDelimitedParse(String path, ProgressBar bar)
         {
-            string csvfolder = SplitCSVFile(path);
-            var listofcsvfiles = getListofDirectory(csvfolder);
+            //progress bar values
+            bar.Minimum = 0;
+            bar.Value = 10;
+            bar.Step = 10;
+            bar.Maximum = 50;
             
+            bar.PerformStep();
+            
+            string csvfolder = SplitCSVFile(path);
+            bar.PerformStep();
+            bar.PerformStep();
+            var listofcsvfiles = getListofDirectory(csvfolder);
+            bar.PerformStep();
             //counter
-            int onlydataeveryms = 1000;
+
             int target = 1000;
             //variable for tracking total time
             int collector = 0;
@@ -354,24 +364,21 @@ namespace ParserApp
             TimeSpan t;
             //format string time
             String tlapse;
-            int alldatauntilms = 10000;
-            int j = 1;
-
-            //progress bar values
-            bar.Minimum = 0;
-            bar.Value = 1;
-            bar.Step = 1;
-            bar.Maximum = 4;
-            //arrays containing interval, raw data, and absolute data
-            //increments progress bar status
-            bar.PerformStep();
             int mslapse;
+
+
+            bar.Maximum = listofcsvfiles.Count * 10 * 7;
+            bar.Value = 10;
+            
+            
             foreach (string splitstringpath in listofcsvfiles)
             {
                 //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
                 System.Windows.Forms.Application.DoEvents();
                 //array for compiled array
+                bar.PerformStep();
                 var iracompiled = new List<String>();
+                //arrays containing interval, raw data, and absolute data
                 var rawresults = ReadCSVFile(splitstringpath);
                 //increments progress bar status
                 bar.PerformStep();
@@ -384,10 +391,7 @@ namespace ParserApp
                 var absolutedataentries = getListOfAbsoluteDataEntries(rawresults);
                 //increments progress bar status
                 bar.PerformStep();
-
-                bar.Maximum = rawresults.Count - 4;
-
-             
+                
                 //header  items for cvs file
                 iracompiled.Add("Interval, Time(ms), Raw Value, Absolute Value");
 
@@ -396,8 +400,7 @@ namespace ParserApp
                 {
                     //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
                     System.Windows.Forms.Application.DoEvents();
-                    //increments progress bar status
-                    bar.PerformStep();
+                    
                     //condition that adds all data entries for the first 10 secs or 10000 ms
                     if (collector < 100000)
                     {
@@ -422,7 +425,7 @@ namespace ParserApp
                         }
                         
                     }
-                    if (collector > 10000)
+                    if (collector > 100000)
                     {
                         if (collector > target)
                         {
@@ -450,9 +453,9 @@ namespace ParserApp
                     }
                 }
 
-                //reset status bar
-                bar.Value = 0;
-
+                
+                bar.PerformStep();
+                
                 var file = splitstringpath.Replace(".csv", "_Parse.csv");
                 using (var stream = File.CreateText(file))
                 {
@@ -460,13 +463,14 @@ namespace ParserApp
                     {
                         //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
                         System.Windows.Forms.Application.DoEvents();
-
+                        
                         stream.WriteLine(line);
                     }
                     
                 }
-                ++j;
+                
             }
+            bar.Value = 0;
         }
 
     }

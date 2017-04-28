@@ -420,8 +420,10 @@ namespace ParserApp
                         {
                             //formats parse
                             iracompiled.Add(tlapse + "," + mslapse + "," + rawdataentries[i - 1].ToString() + "," + absolutedataentries[i - 1].ToString());
-                            //update collector
-                            collector += (intervals[i] * -1) % 60;
+                            
+                                //update collector
+                                collector += (intervals[i] * -1)%60;
+                            
                         }
                         
                     }
@@ -448,12 +450,14 @@ namespace ParserApp
                             //set target time 1sec increments
                             target = collector + 1000; //need seperate variable for 1000
                         }
-                        //update collector
-                        collector += (intervals[i] * -1)%60;
+
+                            //update collector
+                            collector += (intervals[i] * -1) % 60;
                     }
                 }
 
-                
+                //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
+                System.Windows.Forms.Application.DoEvents();
                 bar.PerformStep();
                 
                 var file = splitstringpath.Replace(".csv", "_Parse.csv");

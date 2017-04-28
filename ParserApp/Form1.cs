@@ -15,7 +15,7 @@ namespace ParserApp
     {
         string importFoldername;
         string importDirectory;
-        List<String> parse;
+        //List<String> parse;
 
         public Form1()
         {
@@ -88,20 +88,20 @@ namespace ParserApp
 
         private void logsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var file = importFoldername;
-            if (!(file == null || file == ""))
-            {
-                //int pos = file.LastIndexOf("/");
-                file = file.Replace(".csv", "_extract.csv");
-                using (var stream = File.CreateText(file))
-                {
-                    foreach (string line in parse)
-                    {
-                        stream.WriteLine(line);
-                    }
-                }
-            }
-            else { MessageBox.Show("Please select datalogger output csv file"); }
+            //var file = importFoldername;
+            //if (!(file == null || file == ""))
+            //{
+            //    //int pos = file.LastIndexOf("/");
+            //    file = file.Replace(".csv", "_extract.csv");
+            //    using (var stream = File.CreateText(file))
+            //    {
+            //        foreach (string line in parse)
+            //        {
+            //            stream.WriteLine(line);
+            //        }
+            //    }
+            //}
+            //else { MessageBox.Show("Please select datalogger output csv file"); }
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)

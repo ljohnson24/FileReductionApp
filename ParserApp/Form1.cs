@@ -66,9 +66,8 @@ namespace ParserApp
                 //check if selected file is a specific data logger output csv file
                 if (DataLoggerParse.ValidateCSVFile(importFoldername))
                 {
-                    //parse = DataLoggerParse.getDelimitedParse(importFoldername, progressBar1);
+                    DataLoggerParse.getDelimitedParse(importFoldername, progressBar1);
                     //richTextBox1.Text = "Data Lines: " + parse.Count + "\n";
-                    DataLoggerParse.Split(importFoldername, "C:\\Users\\CSSE\\Desktop\\Shawn Files\\output-files-{0}.txt");
                 }
                 else
                 {
@@ -92,7 +91,6 @@ namespace ParserApp
             var file = importFoldername;
             if (!(file == null || file == ""))
             {
-
                 //int pos = file.LastIndexOf("/");
                 file = file.Replace(".csv", "_extract.csv");
                 using (var stream = File.CreateText(file))

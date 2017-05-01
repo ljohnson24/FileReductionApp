@@ -3,11 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using System.IO;
+using System.Threading;
 
 namespace ParserApp
 {
     public static class DataLoggerParse
     {
+        public static void CallToChildThread()
+        {
+
+        }
 
         //method - validate datalogger csv file 
         public static bool ValidateCSVFile(String csvFileNameWithPath)
@@ -114,6 +119,8 @@ namespace ParserApp
 
                         while ((lineStr = csvReader.ReadLine()) != null)
                         {
+                            //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
+                            System.Windows.Forms.Application.DoEvents();
                             //excludes the header line
                             if (!lineStr.Contains("#"))
                             {
@@ -144,6 +151,8 @@ namespace ParserApp
                 {
                     while (!infile.EndOfStream)
                     {
+                        //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
+                        System.Windows.Forms.Application.DoEvents();
                         line = infile.ReadLine();
                         
                             outfile = new System.IO.StreamWriter(
@@ -166,15 +175,37 @@ namespace ParserApp
         //method takes a raw list of data lines, extracts timestamps and returns array
         public static List<int> getListOfTimeStamps(List<String> rawlistoflines)
         {
-
+            int max = 86345000;
+            bool maxday = false;//tracks days
+            int hrsover = 1; // tracks hrs over a day
             //array variable that will store extracted timestamps
             List<int> timestamplist = new List<int>();
 
             //iterate thru each line in list, store extracted timestamp string
             for (int i = 0; i < rawlistoflines.Count(); i++)
             {
-                //extracts timestamp method here
-                timestamplist.Add(getSingleTimeStamp(rawlistoflines[i]));
+                //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
+                System.Windows.Forms.Application.DoEvents();
+                //evaluate timestamp to verify max day
+                if (getSingleTimeStamp(rawlistoflines[i]) > 86399990 * hrsover)
+                {
+                    maxday = true;
+                }
+                if (maxday && getSingleTimeStamp(rawlistoflines[i]) < 86399990 * hrsover)
+                {
+                    timestamplist.Add(getSingleTimeStamp(rawlistoflines[i])+(max*hrsover));
+                    continue;
+                }
+                if (getSingleTimeStamp(rawlistoflines[i]) > 86399990 * (hrsover + 1))
+                {
+                    maxday = false;
+                    ++hrsover;
+                }
+                
+                    //extracts timestamp method here
+                    timestamplist.Add(getSingleTimeStamp(rawlistoflines[i]));
+                
+                
             }
 
             return timestamplist;
@@ -190,6 +221,8 @@ namespace ParserApp
             //iterate thru each line in list, store extracted timestamp string
             for (int i = 0; i < rawlistoflines.Count(); i++)
             {
+                //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
+                System.Windows.Forms.Application.DoEvents();
                 //extracts timestamp method here
                 dataentrylist.Add(getSingleDataEntry(rawlistoflines[i]));
             }
@@ -205,6 +238,8 @@ namespace ParserApp
             //iterate thru each line in list, store extracted timestamp string
             for (int i = 0; i < rawlistoflines.Count(); i++)
             {
+                //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
+                System.Windows.Forms.Application.DoEvents();
                 string temp = getSingleDataEntry(rawlistoflines[i]);
                 if (temp[0] == '-')
                 {
@@ -249,6 +284,8 @@ namespace ParserApp
             //loop thru line until end tag ","
             while (!(target.Contains(",")))
             {
+                //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
+                System.Windows.Forms.Application.DoEvents();
                 //variable will collect all indexes between start and last count
                 target = line.Substring(startTag + 11, count);//11 excludes date in timestamp
                 //check if contains ':' - remove
@@ -264,8 +301,14 @@ namespace ParserApp
             {
                 target = target.TrimEnd(',');
             }
+            //parse and convert string timestamp to ms
+            string hr = ""+target[0]+target[1];
+            string min = "" + target[2] + target[3];
+            string sec = "" + target[4] + target[5];
+            string ms = "" + target[6] + target[7]+target[8];
 
-            return Convert.ToInt32(target);
+            int mslapse = (Convert.ToInt32(hr) * 60 * 60 * 1000) + (Convert.ToInt32(min) * 60 * 1000) + (Convert.ToInt32(sec) * 1000) + Convert.ToInt32(ms);
+            return mslapse;
         }
 
         //takes a string and returns dataentry string 
@@ -295,6 +338,8 @@ namespace ParserApp
 
             while (i <= occurence && (index = s.IndexOf(match, index + 1)) != -1)
             {
+                //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
+                System.Windows.Forms.Application.DoEvents();
                 if (i == occurence)
                     return index;
 
@@ -314,6 +359,8 @@ namespace ParserApp
             listofintervals.Add(0);
             for (int i = 0; i < rawtimestamps.Count - 1; i++)
             {
+                //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
+                System.Windows.Forms.Application.DoEvents();
                 listofintervals.Add(rawtimestamps[i] - rawtimestamps[i + 1]);
             }
             return listofintervals;
@@ -420,9 +467,9 @@ namespace ParserApp
                         {
                             //formats parse
                             iracompiled.Add(tlapse + "," + mslapse + "," + rawdataentries[i - 1].ToString() + "," + absolutedataentries[i - 1].ToString());
-                            
-                                //update collector
-                                collector += (intervals[i] * -1)%60;
+
+                            //update collector
+                            collector += (intervals[i] * -1);
                             
                         }
                         
@@ -452,7 +499,7 @@ namespace ParserApp
                         }
 
                             //update collector
-                            collector += (intervals[i] * -1) % 60;
+                            collector += (intervals[i] * -1);
                     }
                 }
 

@@ -55,8 +55,6 @@ namespace ParserApp
 
         private void loadImportBtn_Click(object sender, EventArgs e)
         {
-            //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
-            System.Windows.Forms.Application.DoEvents();
             importFoldername = importTb.Text;
             //check if file is not empty
             if (importFoldername == "" || importFoldername==null || !File.Exists(importFoldername))

@@ -412,7 +412,7 @@ namespace ParserApp
             //format string time
             String tlapse;
             int mslapse;
-
+            int j=0;//file multipler for collector
 
             bar.Maximum = listofcsvfiles.Count * 10 * 7;
             bar.Value = 10;
@@ -422,6 +422,7 @@ namespace ParserApp
             {
                 //Processes all Windows messages currently in the message queue. Prevents timeout exceptions do too long operations
                 System.Windows.Forms.Application.DoEvents();
+                ++j;// increment j for every file iteration
                 //array for compiled array
                 bar.PerformStep();
                 var iracompiled = new List<String>();
@@ -449,7 +450,7 @@ namespace ParserApp
                     System.Windows.Forms.Application.DoEvents();
                     
                     //condition that adds all data entries for the first 10 secs or 10000 ms
-                    if (collector < 100000)
+                    if (collector < 100000*j)
                     {
                         // calculate hr, mins,sec, remaining ms using total ms
                         t = TimeSpan.FromMilliseconds(collector);
@@ -474,9 +475,9 @@ namespace ParserApp
                         }
                         
                     }
-                    if (collector > 100000)
+                    if (collector >= 100000*j)
                     {
-                        if (collector > target)
+                        if (collector >= target)
                         {
                             // calculate hr, mins,sec, remaining ms using total ms
                             t = TimeSpan.FromMilliseconds(collector);
